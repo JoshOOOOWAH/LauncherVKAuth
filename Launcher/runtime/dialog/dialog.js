@@ -194,10 +194,10 @@ function goAuth(event) {
         return;
     }
 
-    var auth = authOptions.getSelectionModel().getSelectedItem();
-    if (auth === null) {
-        return; // No auth selected
-    }
+    //var auth = authOptions.getSelectionModel().getSelectedItem();
+    //if (auth === null) {
+    //    return; // No auth selected
+    //}
 
      var rsaPassword = null;
      var auth = authOptions.getSelectionModel().getSelectedItem();

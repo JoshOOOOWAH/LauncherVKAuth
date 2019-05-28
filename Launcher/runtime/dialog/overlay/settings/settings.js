@@ -148,7 +148,7 @@ LogHelper.debug("Dir: %s", DirBridge.dir);
 
 /* ====================== CLI PARAMS ===================== */
 var cliParams = {
-    login: null, password: null, profile: -1, autoLogin: false,
+    login: null, password: null, profile: -1, auth: -1, autoLogin: false,
     updatesDir: null, autoEnter: null, fullScreen: null, ram: -1,
     offline: false, featureStore: null,
 
@@ -158,6 +158,7 @@ var cliParams = {
 
         cliParams.login = named.get("login");
         cliParams.password = named.get("password");
+        cliParams.auth = named.get("std");
         var profile = named.get("profile");
         if (profile !== null) {
             cliParams.profile = java.lang.Integer.parseInt(profile);
@@ -199,6 +200,9 @@ var cliParams = {
         }
         if (cliParams.profile >= 0) {
             settings.profile = cliParams.profile;
+        }
+        if (cliParams.auth >= 0) {
+            settings.auth_type = cliParams.auth;
         }
         if (cliParams.updatesDir !== null) {
         }
