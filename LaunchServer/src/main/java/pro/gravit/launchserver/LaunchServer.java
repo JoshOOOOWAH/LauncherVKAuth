@@ -117,6 +117,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
         public String binaryName;
 
+        public OAuthSetting OAuth;
+
         public boolean copyBinaries = true;
 
         public LauncherConfig.LauncherEnvironment env;
@@ -228,6 +230,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             if (permissionsHandler == null) {
                 throw new NullPointerException("PermissionsHandler must not be null");
             }
+            if (OAuth.ID == 0 || OAuth.BackURL == null){
+                LogHelper.error("OAuthSetting must not be null");
+            }
             if (env == null) {
                 throw new NullPointerException("Env must not be null");
             }
@@ -283,6 +288,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 LogHelper.error(e);
             }
         }
+    }
+
+    public static class OAuthSetting{
+
+        public int ID;
+        public String Secret;
+        public String BackURL;
+
     }
 
     public static class ExeConf {
@@ -763,6 +776,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 
+        newConfig.OAuth = new OAuthSetting();
+        newConfig.OAuth.ID = 0;
+        newConfig.OAuth.Secret = "xxx";
+
         newConfig.netty = new NettyConfig();
         newConfig.netty.fileServerEnabled = true;
         newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
@@ -816,6 +833,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
         newConfig.netty.launcherEXEURL = "http://" + address + ":9274/Launcher.exe";
         newConfig.netty.sendExceptionEnabled = true;
+
+        newConfig.OAuth.BackURL = "http://"+ address + "/OAuth.html";
 
         // Write LaunchServer config
         LogHelper.info("Writing LaunchServer config file");
