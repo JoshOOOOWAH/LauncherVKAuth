@@ -1,8 +1,8 @@
 <!DOCTYPE html>
   <meta charset="utf-8" />
-  <title>WebSocket Test</title>
+  <title>Bicycle VKAuth</title>
   <script language="javascript" type="text/javascript">
-				   //IP LaunchServer
+				   //LaunchServer IP
   var wsUri = "ws://localhost:9274/api";
   var output;
 
@@ -62,6 +62,7 @@
     pre.innerHTML = message;
     output.appendChild(pre);
   }
+  
   function $_GET(key) {
     var p = window.location.search;
     p = p.match(new RegExp(key + '=([^&=]+)'));
@@ -72,6 +73,6 @@
 
   </script>
 
-  <h2>WebSocket Test</h2>
+  <h2>Bicycle VKAuth</h2>
 
   <div id="output"></div>
