@@ -56,9 +56,12 @@ public class OAuthResponse extends SimpleResponse {
                 }
             }
 
-            String id =  OAuthManager.getID(OAuthManager.search(OAuthManager.getIP(ctx)).getCode());
+            String id = OAuthManager.getID(OAuthManager.search(OAuthManager.getIP(ctx)).getCode());
             if(id == null)
                 throw new AuthException("Invalid code");
+
+            OAuthManager.deleteOther(ctx);
+
             AuthProviderPair pair;
             pair = server.config.getAuthProviderPair("MySQLProvider");
             if(pair == null)
