@@ -68,12 +68,7 @@ import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.dao.UserService;
 import pro.gravit.launchserver.legacy.Response;
-import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
-import pro.gravit.launchserver.manangers.MirrorManager;
-import pro.gravit.launchserver.manangers.ModulesManager;
-import pro.gravit.launchserver.manangers.ReconfigurableManager;
-import pro.gravit.launchserver.manangers.ReloadManager;
-import pro.gravit.launchserver.manangers.SessionManager;
+import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.manangers.hook.BuildHookManager;
 import pro.gravit.launchserver.manangers.hook.SocketHookManager;
@@ -490,6 +485,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final CommandHandler commandHandler;
 
+    public final OAuthManager cacheManager;
+
     public final ServerSocketHandler serverSocketHandler;
 
     public final NettyServerSocketHandler nettyServerSocketHandler;
@@ -621,6 +618,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         buildHookManager = new BuildHookManager();
         proguardConf = new ProguardConf(this);
         sessionManager = new SessionManager();
+        cacheManager = new OAuthManager(this);
         mirrorManager = new MirrorManager();
         reloadManager = new ReloadManager();
         reconfigurableManager = new ReconfigurableManager();
