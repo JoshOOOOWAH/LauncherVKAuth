@@ -14,6 +14,11 @@ public final class NullAuthProvider extends AuthProvider {
     }
 
     @Override
+    public AuthProviderResult oauth(String id) throws Exception {
+        return null;
+    }
+
+    @Override
     public void close() throws IOException {
         AuthProvider provider = this.provider;
         if (provider != null)

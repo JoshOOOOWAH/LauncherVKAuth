@@ -19,6 +19,11 @@ public class HibernateAuthProvider extends AuthProvider {
     }
 
     @Override
+    public AuthProviderResult oauth(String id) throws Exception {
+        return null;
+    }
+
+    @Override
     public void close() throws IOException {
 
     }

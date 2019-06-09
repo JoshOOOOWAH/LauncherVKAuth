@@ -70,6 +70,7 @@ function initLoginScene() {
     authOptions = pane.lookup("#authOptions");
 
     pane.lookup("#goAuth").setOnAction(goAuth);
+    pane.lookup("#goOAuth").setOnAction(goOAuth);
 }
 
 /* ======== init Menu window======== */
@@ -221,6 +222,13 @@ function goAuth(event) {
      doAuth(login, rsaPassword, authTypes[auth]);
  }
 
+function goOAuth(event) {
+    if (overlay.current !== null) {
+        return;
+    }
+     doOAuth();
+ }
+
  /* ======== Console ======== */
 function goConsole(event) {
     setConsoleCurrentScene(consoleScene);
@@ -290,6 +298,26 @@ function doAuth(login, rsaPassword, auth_type) {
             FunctionalBridge.setAuthParams(result);
             loginData = { pp: result.playerProfile , accessToken: result.accessToken, permissions: result.permissions,
                 auth_type: settings.auth};
+
+            overlay.hide(0, function () {
+                setCurrentScene(menuScene);
+            });
+            return result;
+        })
+    });
+}
+
+function doOAuth() {
+    processing.resetOverlay();
+    overlay.show(processing.overlay, function (event) {
+        openURL(new java.net.URL(FunctionalBridge.getOAuthURL()));
+        FunctionalBridge.getHWID.join();
+
+        makeOAuthRequest(function (result) {
+            FunctionalBridge.setOAuthParams(result);
+            settings.login = result.playerProfile.username;
+            loginData = { pp: result.playerProfile , accessToken: result.accessToken, permissions: result.permissions,
+                auth_type: "OAuth"};
 
             overlay.hide(0, function () {
                 setCurrentScene(menuScene);

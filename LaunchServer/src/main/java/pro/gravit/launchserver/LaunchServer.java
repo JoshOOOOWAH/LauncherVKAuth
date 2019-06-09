@@ -68,12 +68,7 @@ import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.dao.UserService;
 import pro.gravit.launchserver.legacy.Response;
-import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
-import pro.gravit.launchserver.manangers.MirrorManager;
-import pro.gravit.launchserver.manangers.ModulesManager;
-import pro.gravit.launchserver.manangers.ReconfigurableManager;
-import pro.gravit.launchserver.manangers.ReloadManager;
-import pro.gravit.launchserver.manangers.SessionManager;
+import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.manangers.hook.BuildHookManager;
 import pro.gravit.launchserver.manangers.hook.SocketHookManager;
@@ -116,6 +111,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public String[] mirrors;
 
         public String binaryName;
+
+        public OAuthSetting OAuth;
 
         public boolean copyBinaries = true;
 
@@ -228,6 +225,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
             if (permissionsHandler == null) {
                 throw new NullPointerException("PermissionsHandler must not be null");
             }
+            if (OAuth.ID == 0 || OAuth.BackURL == null){
+                LogHelper.error("OAuthSetting must not be null");
+            }
             if (env == null) {
                 throw new NullPointerException("Env must not be null");
             }
@@ -283,6 +283,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 LogHelper.error(e);
             }
         }
+    }
+
+    public static class OAuthSetting{
+
+        public int ID;
+        public String Secret;
+        public String BackURL;
+
     }
 
     public static class ExeConf {
@@ -477,6 +485,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final CommandHandler commandHandler;
 
+    public final OAuthManager cacheManager;
+
     public final ServerSocketHandler serverSocketHandler;
 
     public final NettyServerSocketHandler nettyServerSocketHandler;
@@ -608,6 +618,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         buildHookManager = new BuildHookManager();
         proguardConf = new ProguardConf(this);
         sessionManager = new SessionManager();
+        cacheManager = new OAuthManager(this);
         mirrorManager = new MirrorManager();
         reloadManager = new ReloadManager();
         reconfigurableManager = new ReconfigurableManager();
@@ -616,6 +627,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         configManager = new ConfigManager();
         userService = new UserService(this);
         GarbageManager.registerNeedGC(sessionManager);
+        GarbageManager.registerNeedGC(cacheManager);
         reloadManager.registerReloadable("launchServer", this);
         registerObject("permissionsHandler", config.permissionsHandler);
         for (int i = 0; i < config.auth.length; ++i) {
@@ -763,6 +775,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.binaryName = "Launcher";
         newConfig.whitelistRejectString = "Вас нет в белом списке";
 
+        newConfig.OAuth = new OAuthSetting();
+        newConfig.OAuth.ID = 0;
+        newConfig.OAuth.Secret = "xxx";
+
         newConfig.netty = new NettyConfig();
         newConfig.netty.fileServerEnabled = true;
         newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
@@ -816,6 +832,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
         newConfig.netty.launcherEXEURL = "http://" + address + ":9274/Launcher.exe";
         newConfig.netty.sendExceptionEnabled = true;
+
+        newConfig.OAuth.BackURL = "http://"+ address + "/OAuth.html";
 
         // Write LaunchServer config
         LogHelper.info("Writing LaunchServer config file");

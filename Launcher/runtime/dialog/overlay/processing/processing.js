@@ -122,6 +122,13 @@ function makeAuthRequest(login, rsaPassword, auth_type, callback) {
     startTask(task);
 }
 
+function makeOAuthRequest(callback) {
+    var task = newRequestTask(new OAuthRequest(FunctionalBridge.getHWID()));
+    processing.setTaskProperties(task, callback, null, true);
+    task.updateMessage("Ожидание авторизации");
+    startTask(task);
+}
+
 function launchClient(assetHDir, clientHDir, profile, params, callback) {
     var task = newTask(function() ClientLauncher.launch(assetHDir, clientHDir,
         profile, params, settings.debug));

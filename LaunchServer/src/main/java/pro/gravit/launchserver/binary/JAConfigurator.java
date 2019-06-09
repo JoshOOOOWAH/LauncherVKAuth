@@ -94,6 +94,18 @@ public class JAConfigurator implements AutoCloseable {
         body.append("\";");
     }
 
+    public void setAppID(String id) {
+        body.append("this.AppID = \"");
+        body.append(id);
+        body.append("\";");
+    }
+
+    public void setBackURL(String url) {
+        body.append("this.BackURL = \"");
+        body.append(url);
+        body.append("\";");
+    }
+
     public void setGuardType(String key) {
         body.append("this.guardType = \"");
         body.append(key);
