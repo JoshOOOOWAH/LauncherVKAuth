@@ -627,6 +627,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         configManager = new ConfigManager();
         userService = new UserService(this);
         GarbageManager.registerNeedGC(sessionManager);
+        GarbageManager.registerNeedGC(cacheManager);
         reloadManager.registerReloadable("launchServer", this);
         registerObject("permissionsHandler", config.permissionsHandler);
         for (int i = 0; i < config.auth.length; ++i) {

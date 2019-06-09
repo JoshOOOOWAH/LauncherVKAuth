@@ -7,12 +7,20 @@ import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
 import com.vk.api.sdk.objects.UserAuthResponse;
 import io.netty.channel.ChannelHandlerContext;
+import pro.gravit.launcher.NeedGarbageCollection;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
-public class OAuthManager {
+public class OAuthManager implements NeedGarbageCollection {
+
+    @Override
+    public void garbageCollection() {
+        server.cacheManager.stageArea = new Entry[]{
+                new Entry(), new Entry(), new Entry()
+        };
+    }
 
     public static class Entry{
 
