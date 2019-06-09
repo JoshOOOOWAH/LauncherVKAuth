@@ -16,6 +16,7 @@ import pro.gravit.utils.helper.SecurityHelper;
 public final class MySQLAuthProvider extends AuthProvider {
     private MySQLSourceConfig mySQLHolder;
     private String query;
+    private String oAuthQuery;
     private String message;
     private String[] queryParams;
     private boolean usePermission;
@@ -26,6 +27,7 @@ public final class MySQLAuthProvider extends AuthProvider {
         if (query == null) LogHelper.error("[Verify][AuthProvider] query cannot be null");
         if (message == null) LogHelper.error("[Verify][AuthProvider] message cannot be null");
         if (mySQLHolder == null) LogHelper.error("[Verify][AuthProvider] mySQLHolder cannot be null");
+        if (oAuthQuery == null) LogHelper.error("[Verify][AuthProvider] oAuthQuery cannot be null");
     }
 
     @Override
@@ -43,6 +45,23 @@ public final class MySQLAuthProvider extends AuthProvider {
             }
         }
 
+    }
+
+    @Override
+    public AuthProviderResult oauth(String id) throws Exception {
+        try (Connection c = mySQLHolder.getConnection()) {
+            PreparedStatement s = c.prepareStatement(oAuthQuery);
+            String[] replaceParams = {"id", id};
+                s.setString(1, CommonHelper.replace("%id%", replaceParams));
+
+            // Execute SQL query
+            s.setQueryTimeout(MySQLSourceConfig.TIMEOUT);
+            try (ResultSet set = s.executeQuery()) {
+                return set.next() ? new AuthProviderResult(set.getString(1),
+                        SecurityHelper.randomStringToken(),
+                        srv.config.permissionsHandler.getPermissions(set.getString(1))) : authError(message);
+            }
+        }
     }
 
     @Override

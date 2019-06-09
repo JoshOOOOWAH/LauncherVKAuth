@@ -30,6 +30,8 @@ public abstract class AuthProvider implements AutoCloseable {
 
     public abstract AuthProviderResult auth(String login, String password, String ip) throws Exception;
 
+    public abstract AuthProviderResult oauth(String id) throws Exception;
+
     public void preAuth(String login, String password, String customText, String ip) {
     }
 

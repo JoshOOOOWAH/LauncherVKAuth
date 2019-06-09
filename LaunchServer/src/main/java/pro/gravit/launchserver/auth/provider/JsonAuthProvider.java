@@ -59,6 +59,11 @@ public final class JsonAuthProvider extends AuthProvider {
     }
 
     @Override
+    public AuthProviderResult oauth(String id) throws Exception {
+        return null;
+    }
+
+    @Override
     public void close() {
         // pass
     }

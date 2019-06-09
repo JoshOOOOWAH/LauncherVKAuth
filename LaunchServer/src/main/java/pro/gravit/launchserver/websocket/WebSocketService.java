@@ -32,13 +32,7 @@ import pro.gravit.launchserver.websocket.json.SimpleResponse;
 import pro.gravit.launchserver.websocket.json.admin.AddLogListenerResponse;
 import pro.gravit.launchserver.websocket.json.admin.ExecCommandResponse;
 import pro.gravit.launchserver.websocket.json.admin.ProxyCommandResponse;
-import pro.gravit.launchserver.websocket.json.auth.AuthResponse;
-import pro.gravit.launchserver.websocket.json.auth.CheckServerResponse;
-import pro.gravit.launchserver.websocket.json.auth.GetAvailabilityAuthResponse;
-import pro.gravit.launchserver.websocket.json.auth.JoinServerResponse;
-import pro.gravit.launchserver.websocket.json.auth.ProfilesResponse;
-import pro.gravit.launchserver.websocket.json.auth.RestoreSessionResponse;
-import pro.gravit.launchserver.websocket.json.auth.SetProfileResponse;
+import pro.gravit.launchserver.websocket.json.auth.*;
 import pro.gravit.launchserver.websocket.json.profile.BatchProfileByUsername;
 import pro.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
 import pro.gravit.launchserver.websocket.json.profile.ProfileByUsername;
@@ -168,6 +162,8 @@ public class WebSocketService {
 
     public void registerResponses() {
         registerResponse("auth", AuthResponse.class);
+        registerResponse("oAuth", OAuthResponse.class);
+        registerResponse("OAuthURL", OAuthServerResponse.class);
         registerResponse("checkServer", CheckServerResponse.class);
         registerResponse("joinServer", JoinServerResponse.class);
         registerResponse("profiles", ProfilesResponse.class);
