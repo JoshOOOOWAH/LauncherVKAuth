@@ -139,6 +139,11 @@ public class MainBuildTask implements LauncherBuildTask {
             jaConfigurator.setEnv(server.config.env);
             if (server.runtime.oemUnlockKey == null) server.runtime.oemUnlockKey = SecurityHelper.randomStringToken();
             jaConfigurator.setOemUnlockKey(server.runtime.oemUnlockKey);
+            if (server.config.OAuth.ID != 0){
+                jaConfigurator.setAppID(String.valueOf(server.config.OAuth.ID));
+                jaConfigurator.setBackURL(server.config.OAuth.BackURL);
+            }else
+                LogHelper.subWarning("OAuth is not defined");
             server.buildHookManager.registerAllClientModuleClass(jaConfigurator);
             reader.getCp().add(new JarFile(inputJar.toFile()));
             server.launcherBinary.coreLibs.forEach(e -> {

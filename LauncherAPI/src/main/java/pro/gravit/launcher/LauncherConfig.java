@@ -30,6 +30,8 @@ public final class LauncherConfig extends StreamObject {
     public final int clientPort;
     public String secretKeyClient;
     public String oemUnlockKey;
+    public String AppID;
+    public String BackURL;
     @LauncherAPI
     public final RSAPublicKey publicKey;
 
@@ -51,6 +53,8 @@ public final class LauncherConfig extends StreamObject {
         clientPort = config.clientPort;
         secretKeyClient = config.secretKeyClient;
         oemUnlockKey = config.oemUnlockKey;
+        AppID = config.AppID;
+        BackURL = config.BackURL;
 
         isWarningMissArchJava = config.isWarningMissArchJava;
         guardLicenseEncryptKey = config.guardLicenseEncryptKey;

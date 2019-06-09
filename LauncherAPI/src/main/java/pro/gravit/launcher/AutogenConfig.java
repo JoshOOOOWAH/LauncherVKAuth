@@ -9,6 +9,8 @@ public class AutogenConfig {
     public String guardType;
     public String secretKeyClient;
     public String oemUnlockKey;
+    public String AppID;
+    public String BackURL;
     public String guardLicenseName;
     public String guardLicenseKey;
     public String guardLicenseEncryptKey;
