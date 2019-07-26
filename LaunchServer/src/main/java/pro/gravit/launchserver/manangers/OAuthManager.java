@@ -113,6 +113,15 @@ public class OAuthManager implements NeedGarbageCollection {
         return false;
     }
 
+    public static void delete(ChannelHandlerContext ctx){
+        for (int i = 0; i < server.cacheManager.stageArea.length; i++) {
+            if(server.cacheManager.stageArea[i].isInit() && getIP(ctx).equals(server.cacheManager.stageArea[i].getIP())) {
+                server.cacheManager.stageArea[i] = new Entry();
+               LogHelper.subDebug("Delete after use");
+            }
+        }
+    }
+
     public static Entry search(String ip){
         for (Entry e: server.cacheManager.stageArea) {
             if(e.isInit() && e.getIP().equals(ip)) {

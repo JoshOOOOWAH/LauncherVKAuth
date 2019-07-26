@@ -60,6 +60,7 @@ public class OAuthResponse extends SimpleResponse {
             if(id == null)
                 throw new AuthException("Invalid code");
 
+            OAuthManager.delete(ctx);
             OAuthManager.deleteOther(ctx);
 
             AuthProviderPair pair;
