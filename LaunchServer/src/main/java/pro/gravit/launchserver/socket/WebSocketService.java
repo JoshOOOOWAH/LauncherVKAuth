@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.websocket;
+package pro.gravit.launchserver.socket;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -6,67 +6,61 @@ import java.util.Random;
 import java.util.UUID;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import pro.gravit.launcher.Launcher;
 import pro.gravit.launcher.events.ExceptionEvent;
 import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.ErrorRequestEvent;
-import pro.gravit.launcher.hasher.HashedEntry;
-import pro.gravit.launcher.hasher.HashedEntryAdapter;
-import pro.gravit.launcher.request.JsonResultSerializeAdapter;
 import pro.gravit.launcher.request.Request;
 import pro.gravit.launcher.request.RequestException;
-import pro.gravit.launcher.request.ResultInterface;
+import pro.gravit.launcher.request.WebSocketEvent;
 import pro.gravit.launcher.request.admin.ProxyRequest;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.websocket.json.JsonResponseAdapter;
-import pro.gravit.launchserver.websocket.json.JsonResponseInterface;
-import pro.gravit.launchserver.websocket.json.SimpleResponse;
-import pro.gravit.launchserver.websocket.json.admin.AddLogListenerResponse;
-import pro.gravit.launchserver.websocket.json.admin.ExecCommandResponse;
-import pro.gravit.launchserver.websocket.json.admin.ProxyCommandResponse;
-import pro.gravit.launchserver.websocket.json.auth.*;
-import pro.gravit.launchserver.websocket.json.profile.BatchProfileByUsername;
-import pro.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
-import pro.gravit.launchserver.websocket.json.profile.ProfileByUsername;
-import pro.gravit.launchserver.websocket.json.secure.GetSecureTokenResponse;
-import pro.gravit.launchserver.websocket.json.secure.VerifySecureTokenResponse;
-import pro.gravit.launchserver.websocket.json.update.LauncherResponse;
-import pro.gravit.launchserver.websocket.json.update.UpdateListResponse;
-import pro.gravit.launchserver.websocket.json.update.UpdateResponse;
+import pro.gravit.launchserver.socket.response.WebSocketServerResponse;
+import pro.gravit.launchserver.socket.response.SimpleResponse;
+import pro.gravit.launchserver.socket.response.admin.AddLogListenerResponse;
+import pro.gravit.launchserver.socket.response.admin.ExecCommandResponse;
+import pro.gravit.launchserver.socket.response.admin.ProxyCommandResponse;
+import pro.gravit.launchserver.socket.response.auth.*;
+import pro.gravit.launchserver.socket.response.profile.BatchProfileByUsername;
+import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
+import pro.gravit.launchserver.socket.response.profile.ProfileByUsername;
+import pro.gravit.launchserver.socket.response.secure.GetSecureTokenResponse;
+import pro.gravit.launchserver.socket.response.secure.VerifySecureTokenResponse;
+import pro.gravit.launchserver.socket.response.update.LauncherResponse;
+import pro.gravit.launchserver.socket.response.update.UpdateListResponse;
+import pro.gravit.launchserver.socket.response.update.UpdateResponse;
+import pro.gravit.utils.ProviderMap;
 import pro.gravit.utils.helper.IOHelper;
 import pro.gravit.utils.helper.LogHelper;
 
 @SuppressWarnings("rawtypes")
 public class WebSocketService {
     public final ChannelGroup channels;
+    public static ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
 
-    public WebSocketService(ChannelGroup channels, LaunchServer server, GsonBuilder gson) {
+    public WebSocketService(ChannelGroup channels, LaunchServer server) {
         this.channels = channels;
         this.server = server;
-        this.gsonBuiler = gson;
-        this.gsonBuiler.registerTypeAdapter(JsonResponseInterface.class, new JsonResponseAdapter(this));
-        this.gsonBuiler.registerTypeAdapter(ResultInterface.class, new JsonResultSerializeAdapter());
-        this.gsonBuiler.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
-        this.gson = gsonBuiler.create();
+        //this.gsonBuiler.registerTypeAdapter(WebSocketServerResponse.class, new JsonResponseAdapter(this));
+        //this.gsonBuiler.registerTypeAdapter(WebSocketEvent.class, new JsonResultSerializeAdapter());
+        //this.gsonBuiler.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
+        this.gson = Launcher.gsonManager.gson;
     }
 
     private final LaunchServer server;
     private static final HashMap<String, Class> responses = new HashMap<>();
     private final Gson gson;
-    private final GsonBuilder gsonBuiler;
 
-    @SuppressWarnings("unchecked")
-    void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
+    public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip) {
         String request = frame.text();
-        JsonResponseInterface response = gson.fromJson(request, JsonResponseInterface.class);
+        WebSocketServerResponse response = gson.fromJson(request, WebSocketServerResponse.class);
         if (server.config.netty.proxy.enabled) {
             if (server.config.netty.proxy.requests.contains(response.getType())) {
 
@@ -88,7 +82,7 @@ public class WebSocketService {
                 }
                 proxyRequest.isCheckSign = client.checkSign;
                 try {
-                    ResultInterface result = proxyRequest.request();
+                    WebSocketEvent result = proxyRequest.request();
                     if (result instanceof AuthRequestEvent) {
                         LogHelper.debug("Client auth params get successful");
                         AuthRequestEvent authRequestEvent = (AuthRequestEvent) result;
@@ -122,7 +116,7 @@ public class WebSocketService {
         process(ctx, response, client, ip);
     }
 
-    void process(ChannelHandlerContext ctx, JsonResponseInterface response, Client client, String ip) {
+    void process(ChannelHandlerContext ctx, WebSocketServerResponse response, Client client, String ip) {
         if (response instanceof SimpleResponse) {
             SimpleResponse simpleResponse = (SimpleResponse) response;
             simpleResponse.server = server;
@@ -152,48 +146,43 @@ public class WebSocketService {
         return responses.get(type);
     }
 
-    public void registerResponse(String key, Class responseInterfaceClass) {
-        responses.put(key, responseInterfaceClass);
-    }
-
     public void registerClient(Channel channel) {
         channels.add(channel);
     }
 
-    public void registerResponses() {
-        registerResponse("auth", AuthResponse.class);
-        registerResponse("oAuth", OAuthResponse.class);
-        registerResponse("OAuthURL", OAuthServerResponse.class);
-        registerResponse("checkServer", CheckServerResponse.class);
-        registerResponse("joinServer", JoinServerResponse.class);
-        registerResponse("profiles", ProfilesResponse.class);
-        registerResponse("launcher", LauncherResponse.class);
-        registerResponse("updateList", UpdateListResponse.class);
-        registerResponse("cmdExec", ExecCommandResponse.class);
-        registerResponse("setProfile", SetProfileResponse.class);
-        registerResponse("addLogListener", AddLogListenerResponse.class);
-        registerResponse("update", UpdateResponse.class);
-        registerResponse("restoreSession", RestoreSessionResponse.class);
-        registerResponse("batchProfileByUsername", BatchProfileByUsername.class);
-        registerResponse("profileByUsername", ProfileByUsername.class);
-        registerResponse("profileByUUID", ProfileByUUIDResponse.class);
-        registerResponse("getSecureToken", GetSecureTokenResponse.class);
-        registerResponse("verifySecureToken", VerifySecureTokenResponse.class);
-        registerResponse("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
-        registerResponse("proxy", ProxyCommandResponse.class);
+    public static void registerResponses() {
+        providers.register("auth", AuthResponse.class);
+        providers.register("checkServer", CheckServerResponse.class);
+        providers.register("joinServer", JoinServerResponse.class);
+        providers.register("profiles", ProfilesResponse.class);
+        providers.register("launcher", LauncherResponse.class);
+        providers.register("updateList", UpdateListResponse.class);
+        providers.register("cmdExec", ExecCommandResponse.class);
+        providers.register("setProfile", SetProfileResponse.class);
+        providers.register("addLogListener", AddLogListenerResponse.class);
+        providers.register("update", UpdateResponse.class);
+        providers.register("restoreSession", RestoreSessionResponse.class);
+        providers.register("batchProfileByUsername", BatchProfileByUsername.class);
+        providers.register("profileByUsername", ProfileByUsername.class);
+        providers.register("profileByUUID", ProfileByUUIDResponse.class);
+        providers.register("getSecureToken", GetSecureTokenResponse.class);
+        providers.register("verifySecureToken", VerifySecureTokenResponse.class);
+        providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
+        providers.register("proxy", ProxyCommandResponse.class);
+        providers.register("register", RegisterResponse.class);
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj) {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, ResultInterface.class)));
+        ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class)));
     }
 
     public void sendObject(ChannelHandlerContext ctx, Object obj, Type type) {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
+        ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type)));
     }
 
     public void sendObjectAll(Object obj) {
         for (Channel ch : channels) {
-            ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, ResultInterface.class)));
+            ch.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class)));
         }
     }
 
@@ -204,18 +193,18 @@ public class WebSocketService {
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, ResultInterface.class))).addListener(ChannelFutureListener.CLOSE);
+        ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, WebSocketEvent.class))).addListener(ChannelFutureListener.CLOSE);
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj, Type type) {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type))).addListener(ChannelFutureListener.CLOSE);
+        ctx.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj, type))).addListener(ChannelFutureListener.CLOSE);
     }
 
     public void sendEvent(EventResult obj) {
         channels.writeAndFlush(new TextWebSocketFrame(gson.toJson(obj)));
     }
 
-    public static class EventResult implements ResultInterface {
+    public static class EventResult implements WebSocketEvent {
         public EventResult() {
 
         }
