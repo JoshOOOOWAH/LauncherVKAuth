@@ -1,13 +1,13 @@
 package pro.gravit.launcher.request.auth;
 
-import pro.gravit.launcher.HWID;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.LauncherNetworkAPI;
 import pro.gravit.launcher.events.request.OAuthRequestEvent;
+import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.request.Request;
-import pro.gravit.launcher.request.websockets.RequestInterface;
+import pro.gravit.launcher.request.websockets.WebSocketRequest;
 
-public class OAuthRequest extends Request<OAuthRequestEvent> implements RequestInterface {
+public class OAuthRequest extends Request<OAuthRequestEvent> implements WebSocketRequest {
 
     @LauncherNetworkAPI
     private final HWID hwid;

@@ -96,7 +96,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
     }
 
     public static final class Config {
-    	private transient LaunchServer server = null;
+        private transient LaunchServer server = null;
 
         public String projectName;
 
@@ -113,6 +113,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         public AuthProviderPair[] auth;
 
         public DaoProvider dao;
+
+        public OAuthSetting OAuth;
 
         private transient AuthProviderPair authDefault;
 
@@ -182,6 +184,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                     break;
                 }
             }
+            if (OAuth.ID == 0 || OAuth.BackURL == null){
+                LogHelper.error("OAuthSetting must not be null");
+            }
             if (protectHandler == null) {
                 throw new NullPointerException("ProtectHandler must not be null");
             }
@@ -248,6 +253,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
                 LogHelper.error(e);
             }
         }
+    }
+
+    public static class OAuthSetting{
+
+        public int ID;
+        public String Secret;
+        public String BackURL;
+
     }
 
     public static class ExeConf {
@@ -435,6 +448,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
 
     public final MirrorManager mirrorManager;
 
+    public final OAuthManager cacheManager;
+
     public final ReloadManager reloadManager;
 
     public final ReconfigurableManager reconfigurableManager;
@@ -600,6 +615,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
 
         // build hooks, anti-brutforce and other
+        cacheManager = new OAuthManager(this);
         buildHookManager = new BuildHookManager();
         proguardConf = new ProguardConf(this);
         sessionManager = new SessionManager();
@@ -645,6 +661,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         }
 
         GarbageManager.registerNeedGC(sessionManager);
+        GarbageManager.registerNeedGC(cacheManager);
         reloadManager.registerReloadable("launchServer", this);
         registerObject("permissionsHandler", config.permissionsHandler);
         for (int i = 0; i < config.auth.length; ++i) {
@@ -787,6 +804,9 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.launch4j.productName = "GravitLauncher";
         newConfig.launch4j.productVer = newConfig.launch4j.fileVer;
         newConfig.launch4j.maxVersion = "1.8.999";
+        newConfig.OAuth = new OAuthSetting();
+        newConfig.OAuth.ID = 0;
+        newConfig.OAuth.Secret = "xxx";
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
         newConfig.startScript = JVMHelper.OS_TYPE.equals(JVMHelper.OS.MUSTDIE) ? "." + File.separator + "start.bat" : "." + File.separator + "start.sh";
         newConfig.hwidHandler = new AcceptHWIDHandler();
@@ -856,6 +876,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reloadable {
         newConfig.netty.launcherURL = "http://" + address + ":9274/Launcher.jar";
         newConfig.netty.launcherEXEURL = "http://" + address + ":9274/Launcher.exe";
         newConfig.netty.sendExceptionEnabled = true;
+        newConfig.OAuth.BackURL = "http://"+ address + "/OAuth.html";
 
         // Write LaunchServer config
         LogHelper.info("Writing LaunchServer config file");

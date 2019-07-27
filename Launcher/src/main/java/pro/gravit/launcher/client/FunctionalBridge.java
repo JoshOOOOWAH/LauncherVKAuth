@@ -6,6 +6,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import pro.gravit.launcher.Launcher;
+import pro.gravit.launcher.events.request.OAuthRequestEvent;
 import pro.gravit.launcher.hwid.HWID;
 import pro.gravit.launcher.LauncherAPI;
 import pro.gravit.launcher.events.request.AuthRequestEvent;
@@ -52,6 +54,22 @@ public class FunctionalBridge {
         HWID hhwid = hwid.get();
         if (hhwid == null) hwid.set(hwidProvider.getHWID());
         return hhwid;
+    }
+
+    @LauncherAPI
+    public static String getOAuthURL() {
+        return "https://oauth.vk.com/authorize?client_id=" +
+                Launcher.getConfig().AppID +
+                "&display=page&scope=offline&response_type=code&v=5.69&redirect_uri=" +
+                Launcher.getConfig().BackURL;
+    }
+
+    @LauncherAPI
+    public static void setOAuthParams(OAuthRequestEvent event) {
+        if (event.session != 0) {
+            Request.setSession(event.session);
+        }
+        LauncherGuardManager.guard.setProtectToken(event.protectToken);
     }
 
     @LauncherAPI

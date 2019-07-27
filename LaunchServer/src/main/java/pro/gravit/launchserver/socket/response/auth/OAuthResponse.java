@@ -1,8 +1,8 @@
-package pro.gravit.launchserver.websocket.json.auth;
+package pro.gravit.launchserver.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launcher.OshiHWID;
 import pro.gravit.launcher.events.request.OAuthRequestEvent;
+import pro.gravit.launcher.hwid.OshiHWID;
 import pro.gravit.launcher.profiles.ClientProfile;
 import pro.gravit.launcher.profiles.PlayerProfile;
 import pro.gravit.launchserver.auth.AuthException;
@@ -13,8 +13,9 @@ import pro.gravit.launchserver.auth.provider.AuthProviderResult;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.manangers.OAuthManager;
 import pro.gravit.launchserver.socket.Client;
-import pro.gravit.launchserver.websocket.json.SimpleResponse;
-import pro.gravit.launchserver.websocket.json.profile.ProfileByUUIDResponse;
+import pro.gravit.launchserver.socket.response.SimpleResponse;
+
+import pro.gravit.launchserver.socket.response.profile.ProfileByUUIDResponse;
 import pro.gravit.utils.HookException;
 import pro.gravit.utils.helper.LogHelper;
 import pro.gravit.utils.helper.VerifyHelper;
@@ -107,7 +108,7 @@ public class OAuthResponse extends SimpleResponse {
                 if (result.playerProfile == null)
                     LogHelper.subWarning("result.playerProfile is null");*/
 
-                result.playerProfile = ProfileByUUIDResponse.getProfile(server, uuid, aresult.username, null, textureProvider);;
+                result.playerProfile = ProfileByUUIDResponse.getProfile( uuid, aresult.username, null, textureProvider);;
                 LogHelper.debug("Auth: %s accessToken %s uuid: %s", aresult.username, result.accessToken, uuid.toString());
 
             sendResult(result);

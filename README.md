@@ -1,10 +1,16 @@
-# Modification of the launcher sashok724's v3 from Gravit [![Build Status](https://travis-ci.com/GravitLauncher/Launcher.svg?branch=master)](https://travis-ci.com/GravitLauncher/Launcher)
-* [Discord channel](https://discord.gg/XTAZevy)
-* [See license](LICENSE)
-* [See code of conduct](CODE_OF_CONDUCT.md)
-* [WIKI](https://yii2.gravit.pro)
-* [OLD WIKI (4.X.X)](https://launcher.gravit.pro)
-* Get it (requires cURL):
-```sh
-curl -s https://raw.githubusercontent.com/GravitLauncher/Launcher/master/get_it.sh | sh
-```
+# **Modification** of Modification of the launcher sashok724's v3 from Gravit **with VK Auhtorization from JoshOOOWAH**
+### Установка:
+* Создайте приложение типа "Standalone" по [ссылке](https://vk.com/editapp?act=create)
+* Из вкладки "Настройки" скопируйте "ID приложения" и "Защищённый ключ"
+* В файле `LaunchServer.conf` заполните элемент 'OAuth':
+    ID - ID приложения 
+    Secret - Защищённый ключ 
+    BackURL - ссылка на Веб-скрипт связи с LaunchServer 
+* Так же в файле конфигурации должен быть AuthProvider c типом mysql и названием *MySQLProvider* 
+* Внутри AuthProvider надо добавить строчку `"oAuthQuery": "SELECT login FROM users WHERE OAuthID=? LIMIT 1"`
+*не забудьте создать колонку `OAuthID` в базе данных*
+* Для работы Веб-скрипта необходимо запустить web-сервер, я использую *nginx*
+* В самом Веб-скрипте необходимо в строчке `var wsUri = "ws://localhost:9274/api";
+` изменить `localhost` на ip LaunchServer
+* [Веб-скрипт](https://github.com/JoshOOOOWAH/Launcher/blob/master/compat/OAuth.html)
+* [Пример конфигурации](https://github.com/JoshOOOOWAH/Launcher/blob/master/compat/LaunchServer.conf)

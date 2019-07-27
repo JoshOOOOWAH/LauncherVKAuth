@@ -152,6 +152,7 @@ public class WebSocketService {
 
     public static void registerResponses() {
         providers.register("auth", AuthResponse.class);
+        providers.register("oAuth", OAuthResponse.class);
         providers.register("checkServer", CheckServerResponse.class);
         providers.register("joinServer", JoinServerResponse.class);
         providers.register("profiles", ProfilesResponse.class);
