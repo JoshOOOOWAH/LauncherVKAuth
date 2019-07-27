@@ -24,6 +24,7 @@
                       <TextField id="login" alignment="CENTER" layoutX="34.0" layoutY="196.0" promptText="Логин" />
                       <PasswordField id="password" alignment="CENTER" layoutX="34.0" layoutY="249.0" promptText="Пароль" />
                       <Button id="goAuth" layoutX="34.0" layoutY="370.0" styleClass="auth" text="ВОЙТИ" />
+                      <Button id="goOAuth" layoutX="194.0" layoutY="370.0" styleClass="vkauth" text="" />
                       <CheckBox id="rememberchb" fx:id="savePassword" contentDisplay="CENTER" layoutX="63.0" layoutY="297.0" prefWidth="144.0" text="Сохранить пароль" textFill="#dadada" />
                       <ComboBox id="authOptions" fx:id="authOptions" layoutX="34.0" layoutY="341.0" prefHeight="25.0" prefWidth="200.0" promptText="Способ авторизации">
                           <styleClass>
@@ -32,7 +33,6 @@
                           </styleClass>
                       </ComboBox>
                       <Hyperlink id="link" fx:id="link" layoutX="94.0" layoutY="422.0" prefHeight="19.0" prefWidth="81.0" textAlignment="CENTER" />
-                  <Pane id="goOAuth" layoutX="190.0" layoutY="370.0" prefHeight="66.0" prefWidth="66.0" styleClass="vkauth" />
                   </children>
               </Pane>
               <Pane fx:id="news" prefHeight="432.0" prefWidth="423.0" styleClass="news" />
